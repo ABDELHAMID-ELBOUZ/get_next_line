@@ -28,7 +28,7 @@ ssize_t	r_line(int fd, char **str)
 	char	*tmp;
 	ssize_t	r_size;
 
-	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	buff = malloc(BUFFER_SIZE * sizeof(char) + 1);
 	if (!buff)
 		return (free(*str), *str = NULL, -1);
 	r_size = read(fd, buff, BUFFER_SIZE);
@@ -44,9 +44,9 @@ ssize_t	r_line(int fd, char **str)
 	return (r_size);
 }
 
-char	*rm_overflow(char *str)
+char	*first_line(char *str)
 {
-	int		i;
+	int	i;
 	char	*result;
 
 	if (!str)
@@ -56,16 +56,16 @@ char	*rm_overflow(char *str)
 		i++;
 	if (str[i] == '\n')
 		i++;
-	result = malloc((i + 1) * sizeof(char));
+	result = malloc(i * sizeof(char) + 1);
 	if (!result)
 		return (NULL);
 	ft_strlcpy(result, str, i + 1);
 	return (result);
 }
 
-char	*start_next_line(char *str)
+char	*second_line(char *str)
 {
-	int		i;
+	int	i;
 	char	*result;
 
 	i = 0;
@@ -84,15 +84,15 @@ char	*start_next_line(char *str)
 
 char	*get_next_line(int fd)
 {
-	static char	*str[FD_SETSIZE];
+	static char	*str[OPEN_MAX];
 	char		*result;
 	ssize_t		r_size;
 
+	if (fd < 0 || BUFFER_SIZE <= 0 || BUFFER_SIZE > INT_MAX
+		|| fd > OPEN_MAX)
+		return (NULL);
 	if (read(fd, NULL, 0) < 0)
 		return (free(str[fd]), str[fd] = NULL, NULL);
-	if (fd < 0 || BUFFER_SIZE <= 0 || BUFFER_SIZE >= INT_MAX
-		|| fd > FD_SETSIZE)
-		return (NULL);
 	while (!ft_strrchr(str[fd], '\n'))
 	{
 		r_size = r_line(fd, &str[fd]);
@@ -101,11 +101,11 @@ char	*get_next_line(int fd)
 		if (r_size == 0)
 			break ;
 	}
-	if (!str[fd] || !*str[fd])
+	if (!str[fd] || str[fd][0] == '\0')
 		return (free(str[fd]), str[fd] = NULL, NULL);
-	result = rm_overflow(str[fd]);
+	result = first_line(str[fd]);
 	if (!result)
 		return (free(str[fd]), str[fd] = NULL, NULL);
-	str[fd] = start_next_line(str[fd]);
+	str[fd] = second_line(str[fd]);
 	return (result);
 }
