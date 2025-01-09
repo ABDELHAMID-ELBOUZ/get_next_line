@@ -14,7 +14,6 @@
 # define GET_NEXT_LINE_BONUS_H
 
 # include <unistd.h>
-# include <fcntl.h>
 # include <stdlib.h>
 # include <limits.h>
 
