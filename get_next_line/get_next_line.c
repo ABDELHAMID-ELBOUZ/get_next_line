@@ -56,7 +56,7 @@ char	*first_line(char *str)
 		i++;
 	if (str[i] == '\n')
 		i++;
-	result = malloc(i + * sizeof(char) + 1);
+	result = malloc(i * sizeof(char) + 1);
 	if (!result)
 		return (NULL);
 	ft_strlcpy(result, str, i + 1);
